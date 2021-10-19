@@ -20,10 +20,10 @@ type Recorder struct {
 	wg             sync.WaitGroup
 }
 
-func NewRecorder() *Recorder {
+func NewRecorder(filePrefix string) *Recorder {
 	return &Recorder{
 		samples:        make([]wav.Sample, 0, buffLen),
-		writerProvider: &FileWriterProvider{},
+		writerProvider: &FileWriterProvider{filePrefix: filePrefix},
 	}
 }
 

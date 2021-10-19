@@ -10,7 +10,7 @@ import (
 )
 
 // Run is an entry point of the app.
-func Run(botToken string, serverID string, channelID string) error {
+func Run(botToken string, serverID string, channelID string, filePrefix string) error {
 	discord, err := discordgo.New("Bot " + botToken)
 	if err != nil {
 		return err
@@ -92,7 +92,7 @@ func Run(botToken string, serverID string, channelID string) error {
 	}()
 
 	log.Info().Msg("start recording...")
-	recorder := NewRecorder()
+	recorder := NewRecorder(filePrefix)
 	err = recorder.Record(vc, finishChan)
 	if err != nil {
 		return err

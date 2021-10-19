@@ -17,10 +17,14 @@ func main() {
 	var botToken string
 	var serverID string
 	var channelID string
+	var outputStr string
+	var filePrefix string
 
 	flag.StringVar(&botToken, "bot-token", "", "[mandatory] secret token of the Discord bot")
 	flag.StringVar(&serverID, "server-id", "", "[mandatory] server ID to join in")
 	flag.StringVar(&channelID, "channel-id", "", "[mandatory] voice channel ID to join in")
+	flag.StringVar(&outputStr, "out", "file", "output destination; this parameter must be \"file\" or \"stdout\"")
+	flag.StringVar(&filePrefix, "file-prefix", "", "output file prefix. if this value is \"test\", this will make \"test-${sequenceNo}.wav\". when you specify \"file\" as the output destination, this parameter is mandatory")
 
 	flag.Usage = func() {
 		_, _ = fmt.Fprintf(os.Stderr, `polsvoice: A Discord bot to record the sound in voice chat.
@@ -47,7 +51,20 @@ Options
 		log.Fatal().Msg("--channel-id is a mandatory parameter")
 	}
 
-	err := polsvoice.Run(botToken, serverID, channelID)
+	var output polsvoice.OutType
+	if outputStr == polsvoice.File {
+		output = polsvoice.File
+	} else if outputStr == polsvoice.Stdout {
+		log.Fatal().Msg("TODO: not implemented yet")
+	} else {
+		log.Fatal().Msg("invalid --out parameter has come")
+	}
+
+	if output == polsvoice.File && filePrefix == "" {
+		log.Fatal().Msg("when --out parameter is \"file\", \"--file-prefix\" must be specified")
+	}
+
+	err := polsvoice.Run(botToken, serverID, channelID, filePrefix)
 	if err != nil {
 		log.Fatal().Err(err).Send()
 	}

@@ -1,12 +1,12 @@
 package polsvoice
 
 import (
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/rs/zerolog/log"
 )
 
 // Run is an entry point of the app.
@@ -23,7 +23,7 @@ func Run(botToken string, serverID string, channelID string) error {
 	defer func() {
 		err := discord.Close()
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err).Msg("failed to close discord instance")
 		}
 	}()
 
@@ -48,7 +48,7 @@ func Run(botToken string, serverID string, channelID string) error {
 	}
 	discord.AddHandler(mentionHandler.Handle)
 
-	log.Println("standby recording in speaker mute")
+	log.Info().Msg("standby recording in speaker mute")
 	alreadyDisconnectedChan := make(chan interface{}, 1)
 	initialVC, err := discord.ChannelVoiceJoin(serverID, channelID, true, true)
 	if err != nil {
@@ -63,13 +63,13 @@ func Run(botToken string, serverID string, channelID string) error {
 
 		err := initialVC.Disconnect()
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err).Msg("failed to disconnect from voice channel in mute (i.e. initial state)")
 		}
 	}()
 
 	select {
 	case <-finishChan:
-		log.Println("finished")
+		log.Info().Msg("finished app")
 		return nil
 	case <-startRecChan:
 		// fall through
@@ -87,11 +87,11 @@ func Run(botToken string, serverID string, channelID string) error {
 	defer func() {
 		err = initialVC.Disconnect()
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err).Msg("failed to disconnect from voice channel")
 		}
 	}()
 
-	log.Println("start recording...")
+	log.Info().Msg("start recording...")
 	recorder := NewRecorder()
 	err = recorder.Record(vc, finishChan)
 	if err != nil {

@@ -1,10 +1,10 @@
 package polsvoice
 
 import (
-	"log"
 	"regexp"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/rs/zerolog/log"
 )
 
 type MentionHandler struct {
@@ -57,14 +57,14 @@ func (h *MentionHandler) handleRecMessage(s *discordgo.Session, m *discordgo.Mes
 
 	_, err := s.ChannelMessageSend(m.ChannelID, "Okay, let's start recording")
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err).Msg("failed to response to rec msg")
 	}
 }
 
 func (h *MentionHandler) handleFinishMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	_, err := s.ChannelMessageSend(m.ChannelID, "Bye...")
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err).Msg("failed to response to finish msg")
 	}
 
 	select {
@@ -76,6 +76,6 @@ func (h *MentionHandler) handleFinishMessage(s *discordgo.Session, m *discordgo.
 func (h *MentionHandler) handleUnknownMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	_, err := s.ChannelMessageSend(m.ChannelID, "I don't know what you mean.")
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err).Msg("failed to response to unknown msg")
 	}
 }

@@ -1,11 +1,11 @@
 package polsvoice
 
 import (
-	"log"
 	"sync"
 
 	"github.com/bwmarrin/dgvoice"
 	"github.com/bwmarrin/discordgo"
+	"github.com/rs/zerolog/log"
 	"github.com/youpy/go-wav"
 )
 
@@ -37,11 +37,11 @@ func (r *Recorder) Record(vc *discordgo.VoiceConnection, finishChan chan interfa
 	for {
 		select {
 		case <-finishChan:
-			log.Println("finalizing...")
+			log.Info().Msg("finalizing...")
 
 			err := r.writePCM()
 			if err != nil {
-				log.Println(err)
+				log.Error().Err(err).Msg("failed to write PCM")
 			}
 
 			// MEMO should flush all remained packets in rx channel?
@@ -64,7 +64,7 @@ func (r *Recorder) Record(vc *discordgo.VoiceConnection, finishChan chan interfa
 			if r.getSamplesLen() >= buffLen {
 				err := r.writePCM()
 				if err != nil {
-					log.Println(err)
+					log.Error().Err(err).Msg("failed to write PCM")
 				}
 			}
 		}
@@ -78,7 +78,7 @@ func (r *Recorder) writePCM() error {
 	if err != nil {
 		return err
 	}
-	log.Printf("write wav file; %s", identifier)
+	log.Info().Str("file_identifier", identifier).Msg("writing wav file...")
 
 	samples := make([]wav.Sample, r.getSamplesLen())
 	_ = copy(samples, r.samples)
@@ -90,10 +90,11 @@ func (r *Recorder) writePCM() error {
 
 		err = wav.NewWriter(w, uint32(len(samples)), numOfAudioChannels, samplingRate, samplingBit).WriteSamples(samples)
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err).Msg("failed to write wave samples to a file")
+			return
 		}
 
-		log.Printf("finished writing wav file; %s", identifier)
+		log.Info().Str("file_identifier", identifier).Msg("finished writing wav file")
 	}()
 
 	return nil

@@ -3,8 +3,9 @@ package polsvoice
 import (
 	"fmt"
 	"io"
-	"log"
 	"os"
+
+	"github.com/rs/zerolog/log"
 )
 
 type FileWriterProvider struct {
@@ -22,7 +23,7 @@ func (p *FileWriterProvider) GetWriter() (io.Writer, string, func(), error) {
 	return f, identifier, func() {
 		err := f.Close()
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err).Str("file_identifier", identifier).Msg("failed to close the file")
 		}
 	}, nil
 

@@ -2,7 +2,6 @@ package polsvoice
 
 import (
 	"log"
-	"os"
 	"sync"
 
 	"github.com/bwmarrin/dgvoice"
@@ -28,7 +27,7 @@ func NewRecorder() *Recorder {
 	}
 }
 
-func (r *Recorder) Record(vc *discordgo.VoiceConnection, finishChan chan os.Signal) error {
+func (r *Recorder) Record(vc *discordgo.VoiceConnection, finishChan chan interface{}) error {
 	rx := make(chan *discordgo.Packet, 2)
 
 	go dgvoice.ReceivePCM(vc, rx)

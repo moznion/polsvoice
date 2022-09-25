@@ -1,6 +1,6 @@
 module github.com/moznion/polsvoice
 
-go 1.17
+go 1.19
 
 require (
 	github.com/bwmarrin/dgvoice v0.0.0-20210225172318-caaac756e02e
